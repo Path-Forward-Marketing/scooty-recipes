@@ -45,6 +45,49 @@ PFM_CSS = (
 st.markdown(PFM_CSS, unsafe_allow_html=True)
 
 
+# ---------- Password gate ----------
+# If APP_PASSWORD is set in Streamlit secrets, visitors must enter it before
+# accessing the app. This protects the API key from being burned by random
+# strangers who find the URL. If APP_PASSWORD is not configured, the gate
+# is skipped (useful for local development).
+
+def get_app_password() -> str | None:
+    try:
+        if "APP_PASSWORD" in st.secrets:
+            return st.secrets["APP_PASSWORD"]
+    except (FileNotFoundError, st.errors.StreamlitSecretNotFoundError):
+        pass
+    return None
+
+
+def check_password_gate():
+    expected = get_app_password()
+    if not expected:
+        return
+    if st.session_state.get("scooty_unlocked", False):
+        return
+
+    st.markdown(
+        '<div class="pfm-eyebrow">Scooty Recipes</div>'
+        '<h1 style="margin-top:0; font-size: clamp(36px, 4vw, 56px);">Your Recipes, Only Healthier</h1>'
+        '<p class="pfm-lede">This app is password-protected. Enter the password to continue.</p>'
+        '<hr class="pfm-rule" />',
+        unsafe_allow_html=True,
+    )
+    pw = st.text_input("Password", type="password", label_visibility="collapsed",
+                       placeholder="Enter password")
+    if pw:
+        if pw == expected:
+            st.session_state["scooty_unlocked"] = True
+            st.rerun()
+        else:
+            st.error("Incorrect password.")
+    st.stop()
+
+
+check_password_gate()
+
+
 # ---------- API key handling ----------
 
 def get_api_key() -> str | None:
