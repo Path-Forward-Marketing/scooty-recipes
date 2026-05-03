@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 200" width="480" height="200" role="img" aria-label="Scooty Recipes — Recipes for Healthy Living">
+  <title>Scooty Recipes</title>
+  <defs>
+    <clipPath id="logo-outer-clip">
+      <rect x="0" y="0" width="480" height="200" rx="4" ry="4"/>
+    </clipPath>
+    <style>
+      .scooty-mark {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-weight: 800;
+        font-size: 88px;
+        fill: #2D5A3D;
+        letter-spacing: 1px;
+      }
+      .recipes-line {
+        font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+        font-style: italic;
+        font-weight: 500;
+        font-size: 28px;
+        fill: #D9D7C2;
+      }
+    </style>
+  </defs>
+
+  <g clip-path="url(#logo-outer-clip)">
+    <rect x="0" y="0" width="480" height="100" fill="#D9D7C2"/>
+    <rect x="0" y="100" width="480" height="100" fill="#2D5A3D"/>
+  </g>
+
+  <text x="240" y="82" text-anchor="middle" class="scooty-mark">SCOOTY</text>
+  <text x="240" y="160" text-anchor="middle" class="recipes-line">Recipes for Healthy Living</text>
+</svg>

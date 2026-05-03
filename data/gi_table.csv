@@ -1,0 +1,65 @@
+food_key,display_name,gi,carbs_per_100g,reference
+white rice,White rice (cooked),73,28,Atkinson 2021 (peer-reviewed GI tables)
+brown rice,Brown rice (cooked),68,23,Atkinson 2021
+basmati rice,Basmati rice (cooked),58,25,Atkinson 2021
+jasmine rice,Jasmine rice (cooked),79,28,Atkinson 2021
+white bread,White bread,75,49,Atkinson 2021
+whole wheat bread,Whole wheat bread,74,41,Atkinson 2021
+sourdough,Sourdough bread,53,48,Atkinson 2021
+bagel,Bagel (white),72,53,Atkinson 2021
+pasta,Pasta (white wheat cooked),49,25,Atkinson 2021
+whole wheat pasta,Whole wheat pasta (cooked),48,24,Atkinson 2021
+potato,Potato (boiled),78,17,Atkinson 2021
+baked potato,Potato (baked),85,21,Atkinson 2021
+mashed potato,Mashed potato,87,15,Atkinson 2021
+sweet potato,Sweet potato (boiled),63,20,Atkinson 2021
+sugar,Sugar (sucrose),65,100,Atkinson 2021
+honey,Honey,61,82,Atkinson 2021
+maple syrup,Maple syrup,54,67,Atkinson 2021
+agave,Agave nectar,19,76,Atkinson 2021
+apple,Apple (raw),36,14,Atkinson 2021
+banana,Banana (raw ripe),51,23,Atkinson 2021
+orange,Orange (raw),43,12,Atkinson 2021
+grapes,Grapes (raw),53,18,Atkinson 2021
+strawberry,Strawberries (raw),40,8,Atkinson 2021
+blueberry,Blueberries (raw),53,14,Atkinson 2021
+mango,Mango (raw),51,15,Atkinson 2021
+pineapple,Pineapple (raw),59,13,Atkinson 2021
+watermelon,Watermelon (raw),76,8,Atkinson 2021
+carrot,Carrot (cooked),39,8,Atkinson 2021
+corn,Corn (cooked),52,21,Atkinson 2021
+peas,Green peas (cooked),51,14,Atkinson 2021
+broccoli,Broccoli (cooked),15,7,Atkinson 2021
+cauliflower,Cauliflower (cooked),15,5,Atkinson 2021
+spinach,Spinach (cooked),15,4,Atkinson 2021
+zucchini,Zucchini (cooked),15,3,Atkinson 2021
+lentils,Lentils (cooked),32,20,Atkinson 2021
+chickpeas,Chickpeas (cooked),28,27,Atkinson 2021
+black beans,Black beans (cooked),30,24,Atkinson 2021
+kidney beans,Kidney beans (cooked),24,23,Atkinson 2021
+pinto beans,Pinto beans (cooked),39,22,Atkinson 2021
+soybeans,Soybeans (cooked),16,11,Atkinson 2021
+tofu,Tofu,15,2,Atkinson 2021
+milk,Whole milk,31,5,Atkinson 2021
+skim milk,Skim milk,32,5,Atkinson 2021
+soy milk,Soy milk (unsweetened),34,4,Atkinson 2021
+almond milk,Almond milk (unsweetened),25,1,Atkinson 2021
+yogurt,Yogurt (plain whole milk),41,5,Atkinson 2021
+greek yogurt,Greek yogurt (plain),11,4,Atkinson 2021
+oats,Rolled oats (cooked),55,12,Atkinson 2021
+steel cut oats,Steel cut oats (cooked),53,11,Atkinson 2021
+quinoa,Quinoa (cooked),53,21,Atkinson 2021
+barley,Barley (cooked),28,28,Atkinson 2021
+buckwheat,Buckwheat (cooked),45,20,Atkinson 2021
+couscous,Couscous (cooked),65,23,Atkinson 2021
+cornflakes,Cornflakes,81,84,Atkinson 2021
+oatmeal,Oatmeal (instant),79,68,Atkinson 2021
+white flour,All-purpose flour,85,76,Atkinson 2021
+whole wheat flour,Whole wheat flour,71,72,Atkinson 2021
+almond flour,Almond flour,1,20,Estimated (low-carb nut flour)
+coconut flour,Coconut flour,35,60,Estimated
+chocolate,Dark chocolate (70%),23,46,Atkinson 2021
+ice cream,Ice cream (regular),51,24,Atkinson 2021
+peanut,Peanuts,14,16,Atkinson 2021
+cashew,Cashews,22,30,Atkinson 2021
+walnut,Walnuts,15,14,Atkinson 2021
