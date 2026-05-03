@@ -9,7 +9,7 @@ from typing import Optional
 import anthropic
 
 from models import ModifiedRecipe, NutritionFacts, Recipe
-from gi_lookup import resolve_gi
+from gi_lookup import estimate_gi_batch_via_claude, lookup_in_table
 
 
 MODEL = "claude-sonnet-4-6"
@@ -222,7 +222,7 @@ def estimate_nutrition(client: anthropic.Anthropic, recipe: Recipe) -> Nutrition
     response = client.messages.parse(
         model=MODEL,
         max_tokens=8192,
-        output_config={"effort": "high"},
+        output_config={"effort": "medium"},
         system=[
             {
                 "type": "text",
@@ -246,50 +246,69 @@ def estimate_nutrition(client: anthropic.Anthropic, recipe: Recipe) -> Nutrition
 def compute_meal_gi_gl(
     client: anthropic.Anthropic, recipe: Recipe, nutrition: NutritionFacts
 ) -> NutritionFacts:
-    """Compute meal-level GI and GL from per-ingredient lookups, mutating nutrition in place.
+    """Compute meal-level GI and GL using table lookups + a single batch fallback.
 
     Strategy:
-    - For each ingredient, resolve a GI value (table or Claude fallback).
-    - Approximate ingredient carb contribution using nutrition.carbs_g per serving prorated by ingredient mass share.
-    - Since we don't have per-ingredient mass here, use a simpler approach: weighted average GI of the
-      carb-contributing ingredients, then GL = (GI * carbs_per_serving) / 100.
+    1. Filter out zero-quantity and clearly low-carb ingredients (oil, salt, herbs, etc.)
+    2. Try the static GI table for each remaining ingredient (fast, no API calls)
+    3. For everything not in the table, make ONE batch Claude call (instead of N separate calls)
+    4. Combine the results into a meal-level GI and GL
 
-    This is a rough estimate; for precise GL you'd need per-ingredient carb breakdown.
+    Mutates `nutrition` in place and returns it.
     """
-    ingredient_gis = []
-    sources = []
-    any_estimated = False
+    low_carb_keywords = (
+        "oil", "salt", "pepper", "herb", "spice", "vinegar", "vanilla",
+        "extract", "yeast", "baking soda", "baking powder", "water",
+    )
 
+    candidates: list[str] = []
     for ing in recipe.ingredients:
         if ing.quantity == 0:
             continue
-        try:
-            resolved = resolve_gi(client, ing.name)
-        except Exception:
-            continue
-        # Skip ingredients that contribute negligible carbs (oil, salt, herbs)
-        # using a heuristic: if name contains low-carb keyword, skip
-        low_carb_keywords = ("oil", "salt", "pepper", "herb", "spice", "vinegar", "vanilla",
-                             "extract", "yeast", "baking soda", "baking powder", "water")
         if any(kw in ing.name.lower() for kw in low_carb_keywords):
             continue
-        ingredient_gis.append(resolved.gi)
-        sources.append(resolved.source)
-        if not resolved.in_table:
-            any_estimated = True
+        candidates.append(ing.name)
 
-    if not ingredient_gis:
+    if not candidates:
         nutrition.glycemic_index = None
         nutrition.glycemic_load = None
         nutrition.gi_source = "no carb-bearing ingredients identified"
         return nutrition
 
-    avg_gi = sum(ingredient_gis) / len(ingredient_gis)
+    # Pass 1: synchronous table lookups (fast, no API calls)
+    table_hits: dict[str, float] = {}
+    misses: list[str] = []
+    for name in candidates:
+        record = lookup_in_table(name)
+        if record is not None:
+            table_hits[name] = record.gi
+        else:
+            misses.append(name)
+
+    # Pass 2: single batch Claude call for everything missing
+    estimated_hits: dict[str, float] = {}
+    if misses:
+        try:
+            estimates = estimate_gi_batch_via_claude(client, misses)
+            for name, est in estimates.items():
+                estimated_hits[name] = est.gi
+        except Exception:
+            # If batch fails, just skip those ingredients
+            pass
+
+    all_gis = list(table_hits.values()) + list(estimated_hits.values())
+    if not all_gis:
+        nutrition.glycemic_index = None
+        nutrition.glycemic_load = None
+        nutrition.gi_source = "could not estimate GI for any ingredients"
+        return nutrition
+
+    avg_gi = sum(all_gis) / len(all_gis)
     nutrition.glycemic_index = round(avg_gi, 1)
     nutrition.glycemic_load = round((avg_gi * nutrition.carbs_g) / 100, 1)
 
-    if any_estimated:
-        nutrition.gi_source = "mixed (Atkinson 2021 table + Claude estimates for foods not in table)"
+    if estimated_hits:
+        nutrition.gi_source = "mixed (Atkinson 2021 table + Claude batch estimates for foods not in table)"
     else:
         nutrition.gi_source = "Atkinson 2021 GI tables"
 

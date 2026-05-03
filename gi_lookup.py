@@ -81,6 +81,7 @@ def estimate_gi_via_claude(client: anthropic.Anthropic, ingredient_name: str) ->
     response = client.messages.parse(
         model="claude-sonnet-4-6",
         max_tokens=2048,
+        output_config={"effort": "low"},
         system=[
             {
                 "type": "text",
@@ -100,6 +101,76 @@ def estimate_gi_via_claude(client: anthropic.Anthropic, ingredient_name: str) ->
         output_format=GIEstimate,
     )
     return response.parsed_output
+
+
+class GIBatchItem(BaseModel):
+    """One food's GI estimate within a batch response."""
+    food_name: str = Field(description="The food name — use the exact name from the input list")
+    gi: float = Field(description="Estimated glycemic index, 0-110")
+    confidence: str = Field(description="low | medium | high")
+    similar_foods: list[str] = Field(default_factory=list, description="Up to 3 reference foods used to estimate")
+
+
+class GIBatchResult(BaseModel):
+    estimates: list[GIBatchItem]
+
+
+def estimate_gi_batch_via_claude(
+    client: anthropic.Anthropic, food_names: list[str]
+) -> dict[str, GIEstimate]:
+    """Estimate GI for many foods in a single Claude call.
+
+    Returns a dict mapping each input food name to a GIEstimate. If parsing fails
+    or a name isn't returned by Claude, that name is omitted from the result.
+    """
+    if not food_names:
+        return {}
+
+    food_list = "\n".join(f"- {name}" for name in food_names)
+    response = client.messages.parse(
+        model="claude-sonnet-4-6",
+        max_tokens=4096,
+        output_config={"effort": "low"},
+        system=[
+            {
+                "type": "text",
+                "text": (
+                    "You estimate glycemic index (GI) values for foods that aren't in published GI tables. "
+                    "For each food in the input list, estimate its GI based on carbohydrate composition "
+                    "(refined vs whole grain, simple vs complex), fiber content, processing level, and "
+                    "published GI values for similar foods (Atkinson 2021 International Tables of GI). "
+                    "Return one estimate per input food, using the EXACT food name as provided. "
+                    "Be conservative — when in doubt, use the average of similar foods rather than extremes."
+                ),
+                "cache_control": {"type": "ephemeral"},
+            }
+        ],
+        messages=[
+            {
+                "role": "user",
+                "content": f"Estimate the glycemic index for each of these foods (use the exact names provided):\n\n{food_list}",
+            }
+        ],
+        output_format=GIBatchResult,
+    )
+
+    if response.parsed_output is None:
+        return {}
+
+    estimates = response.parsed_output.estimates
+    result: dict[str, GIEstimate] = {}
+    for i, name in enumerate(food_names):
+        match = next((e for e in estimates if e.food_name.lower() == name.lower()), None)
+        if match is None and i < len(estimates):
+            match = estimates[i]
+        if match is not None:
+            result[name] = GIEstimate(
+                gi=match.gi,
+                confidence=match.confidence,
+                similar_foods=match.similar_foods,
+                rationale="",
+            )
+    return result
 
 
 @dataclass
