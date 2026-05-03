@@ -25,121 +25,24 @@ st.set_page_config(page_title="Scooty Recipes", page_icon="🥗", layout="wide")
 # ---------- Path Forward Marketing brand styling ----------
 # Tokens mirror ~/.claude/skills/path-forward-marketing-design/colors_and_type.css
 
-st.markdown(
-    """
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
-    <style>
-      :root {
-        --pfm-forest: #2D5A3D;
-        --pfm-forest-deep: #234A31;
-        --pfm-forest-soft: #3E6F50;
-        --pfm-cream: #D9D7C2;
-        --pfm-cream-soft: #E8E6D6;
-        --pfm-cream-deep: #C2BFA6;
-        --pfm-ink: #1A1F1C;
-        --pfm-ink-muted: #4A524C;
-        --pfm-ink-subtle: #7D847F;
-        --pfm-line: #D8D6CC;
-        --pfm-paper: #FAF8F0;
-        --pfm-paper-alt: #F3F0E4;
-        --pfm-accent: #C38A3E;
-      }
-
-      html, body, [class*="css"] {
-        font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif;
-        color: var(--pfm-ink);
-      }
-
-      /* Headlines: italic Poppins with tight letter-spacing */
-      h1, h2 {
-        font-family: 'Poppins', sans-serif !important;
-        font-style: italic !important;
-        font-weight: 700 !important;
-        letter-spacing: -0.02em !important;
-        color: var(--pfm-ink) !important;
-        text-wrap: balance;
-      }
-      h3, h4 {
-        font-family: 'Poppins', sans-serif !important;
-        font-weight: 600 !important;
-        font-style: normal !important;
-        color: var(--pfm-ink) !important;
-      }
-
-      /* Eyebrow + section-title — Barlow Condensed all-caps echoes the FORWARD bar */
-      .pfm-eyebrow {
-        font-family: 'Barlow Condensed', sans-serif;
-        font-weight: 700;
-        font-size: 13px;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        color: var(--pfm-forest);
-        margin-bottom: 0.25rem;
-      }
-      .pfm-section-title {
-        font-family: 'Barlow Condensed', sans-serif;
-        font-weight: 700;
-        font-size: 28px;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        color: var(--pfm-ink);
-        line-height: 1;
-        margin-top: 1rem;
-        margin-bottom: 0.5rem;
-      }
-      .pfm-lede {
-        font-size: 19px;
-        line-height: 1.5;
-        color: var(--pfm-ink-muted);
-        max-width: 70ch;
-      }
-      .pfm-rule {
-        height: 1px;
-        background: var(--pfm-line);
-        margin: 1.5rem 0;
-        border: 0;
-      }
-
-      /* Buttons: sharp corners, forest fill */
-      .stButton > button {
-        border-radius: 4px !important;
-        border: 1px solid var(--pfm-forest) !important;
-        background: var(--pfm-forest) !important;
-        color: var(--pfm-cream) !important;
-        font-weight: 500 !important;
-        letter-spacing: 0.01em;
-        transition: background 140ms ease;
-      }
-      .stButton > button:hover {
-        background: var(--pfm-forest-soft) !important;
-        border-color: var(--pfm-forest-soft) !important;
-      }
-      .stButton > button[kind="secondary"] {
-        background: transparent !important;
-        color: var(--pfm-forest) !important;
-      }
-
-      /* Inputs / cards: light rounding, hairline borders */
-      .stTextInput input, .stTextArea textarea, .stFileUploader,
-      [data-testid="stExpander"], [data-testid="stMetric"] {
-        border-radius: 4px !important;
-        border-color: var(--pfm-line) !important;
-      }
-
-      /* Toggles: forest accent when on */
-      .stCheckbox [data-baseweb="checkbox"] [aria-checked="true"] {
-        background-color: var(--pfm-forest) !important;
-      }
-
-      /* Sidebar */
-      [data-testid="stSidebar"] {
-        background: var(--pfm-paper-alt);
-        border-right: 1px solid var(--pfm-line);
-      }
-    </style>
-    """,
-    unsafe_allow_html=True,
+PFM_CSS = (
+    '<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">'
+    "<style>"
+    ":root{--pfm-forest:#2D5A3D;--pfm-forest-deep:#234A31;--pfm-forest-soft:#3E6F50;--pfm-cream:#D9D7C2;--pfm-cream-soft:#E8E6D6;--pfm-cream-deep:#C2BFA6;--pfm-ink:#1A1F1C;--pfm-ink-muted:#4A524C;--pfm-ink-subtle:#7D847F;--pfm-line:#D8D6CC;--pfm-paper:#FAF8F0;--pfm-paper-alt:#F3F0E4;--pfm-accent:#C38A3E;}"
+    "html,body{font-family:'Poppins',ui-sans-serif,system-ui,sans-serif;color:var(--pfm-ink);}"
+    "h1,h2{font-family:'Poppins',sans-serif!important;font-style:italic!important;font-weight:700!important;letter-spacing:-0.02em!important;color:var(--pfm-ink)!important;text-wrap:balance;}"
+    "h3,h4{font-family:'Poppins',sans-serif!important;font-weight:600!important;font-style:normal!important;color:var(--pfm-ink)!important;}"
+    ".pfm-eyebrow{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:var(--pfm-forest);margin-bottom:0.25rem;}"
+    ".pfm-section-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:28px;letter-spacing:0.04em;text-transform:uppercase;color:var(--pfm-ink);line-height:1;margin-top:1rem;margin-bottom:0.5rem;}"
+    ".pfm-lede{font-size:19px;line-height:1.5;color:var(--pfm-ink-muted);max-width:70ch;}"
+    ".pfm-rule{height:1px;background:var(--pfm-line);margin:1.5rem 0;border:0;}"
+    ".stButton>button{border-radius:4px!important;border:1px solid var(--pfm-forest)!important;background:var(--pfm-forest)!important;color:var(--pfm-cream)!important;font-weight:500!important;letter-spacing:0.01em;transition:background 140ms ease;}"
+    ".stButton>button:hover{background:var(--pfm-forest-soft)!important;border-color:var(--pfm-forest-soft)!important;}"
+    ".stTextInput input,.stTextArea textarea,.stFileUploader,[data-testid=\"stExpander\"],[data-testid=\"stMetric\"]{border-radius:4px!important;border-color:var(--pfm-line)!important;}"
+    "[data-testid=\"stSidebar\"]{background:var(--pfm-paper-alt);border-right:1px solid var(--pfm-line);}"
+    "</style>"
 )
+st.markdown(PFM_CSS, unsafe_allow_html=True)
 
 
 # ---------- API key handling ----------
