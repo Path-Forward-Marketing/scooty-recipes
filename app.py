@@ -2,6 +2,7 @@
 
 import os
 from io import BytesIO
+from pathlib import Path
 
 import anthropic
 import pandas as pd
@@ -45,6 +46,22 @@ PFM_CSS = (
 st.markdown(PFM_CSS, unsafe_allow_html=True)
 
 
+# ---------- Logo ----------
+
+@st.cache_data
+def load_logo() -> str:
+    raw = (Path(__file__).parent / "assets" / "logo-scooty-recipes.svg").read_text(encoding="utf-8")
+    # Make responsive: replace fixed dimensions so the SVG scales to its wrapper
+    return raw.replace('width="480" height="200"', 'width="100%" height="auto"', 1)
+
+
+def render_logo(max_width: int = 420):
+    st.markdown(
+        f'<div style="max-width:{max_width}px; margin:0 0 1.5rem 0;">{load_logo()}</div>',
+        unsafe_allow_html=True,
+    )
+
+
 # ---------- Password gate ----------
 # If APP_PASSWORD is set in Streamlit secrets, visitors must enter it before
 # accessing the app. This protects the API key from being burned by random
@@ -67,9 +84,8 @@ def check_password_gate():
     if st.session_state.get("scooty_unlocked", False):
         return
 
+    render_logo()
     st.markdown(
-        '<div class="pfm-eyebrow">Scooty Recipes</div>'
-        '<h1 style="margin-top:0; font-size: clamp(36px, 4vw, 56px);">Your Recipes, Only Healthier</h1>'
         '<p class="pfm-lede">This app is password-protected. Enter the password to continue.</p>'
         '<hr class="pfm-rule" />',
         unsafe_allow_html=True,
@@ -163,10 +179,9 @@ def get_client() -> anthropic.Anthropic | None:
 
 # ---------- UI ----------
 
+render_logo(max_width=480)
 st.markdown(
     """
-    <div class="pfm-eyebrow">Scooty Recipes</div>
-    <h1 style="margin-top:0; font-size: clamp(36px, 4vw, 56px);">Your Recipes, Only Healthier</h1>
     <p class="pfm-lede">
       Drop in any recipe — text or photo — and get a version that's lower in cholesterol,
       diabetic-friendly, or both. Modifications grounded in USDA Dietary Guidelines, AHA, and ADA standards.
