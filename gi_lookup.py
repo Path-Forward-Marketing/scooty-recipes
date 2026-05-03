@@ -79,7 +79,7 @@ def lookup_in_table(ingredient_name: str) -> Optional[GIRecord]:
 def estimate_gi_via_claude(client: anthropic.Anthropic, ingredient_name: str) -> GIEstimate:
     """Fallback: ask Claude to estimate GI from training data when not in table."""
     response = client.messages.parse(
-        model="claude-opus-4-7",
+        model="claude-sonnet-4-6",
         max_tokens=2048,
         system=[
             {

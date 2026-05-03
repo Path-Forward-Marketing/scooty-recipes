@@ -12,7 +12,7 @@ from models import ModifiedRecipe, NutritionFacts, Recipe
 from gi_lookup import resolve_gi
 
 
-MODEL = "claude-opus-4-7"
+MODEL = "claude-sonnet-4-6"
 
 
 # ---------- System prompts (stable — cached) ----------
