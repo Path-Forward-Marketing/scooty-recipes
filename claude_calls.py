@@ -76,18 +76,46 @@ Reference standards (cite specifically in each swap):
 For LOWER CHOLESTEROL:
 - AHA: limit saturated fat to <6% of total calories
 - AHA: <300mg dietary cholesterol/day (lower if at risk)
-- Replace butter with olive oil, avocado oil, or plant-based fats
-- Replace whole eggs with egg whites or flax/chia "eggs" where structural role allows
 - Reduce or substitute red meat with fish, poultry, legumes
 - Add soluble fiber sources (oats, beans, citrus pectin, psyllium)
 
 For DIABETIC-FRIENDLY:
 - ADA: emphasize carbohydrate quality and quantity; lower glycemic load
 - Replace refined grains with whole grains (whole wheat, oats, quinoa, barley)
-- Reduce added sugars; small amounts of sugar alcohols (erythritol) or stevia for sweetness if needed
+- Reduce added sugars
 - Add fiber and protein to slow glucose response
 - Use legumes, non-starchy vegetables, and lean proteins to balance carb load
 - Avoid high-GI ingredients (white rice, white bread, mashed potatoes); prefer low-GI alternatives
+
+PREFERRED INGREDIENT SUBSTITUTIONS — reach for these well-established home-cook swaps when the recipe contains the source ingredient:
+
+For lower saturated fat / cholesterol:
+- Butter → unsweetened applesauce (in baking; 1:1 by volume — preserves moisture, dramatically cuts saturated fat)
+- Butter → mashed avocado (1:1 in baked goods like brownies, cookies)
+- Butter → olive oil or avocado oil (use 3/4 cup oil per 1 cup butter; for sautéing or non-baking applications)
+- Whole eggs → 2 egg whites per whole egg (or flax egg: 1 tbsp ground flax + 3 tbsp water, in baked goods)
+- Sour cream → plain nonfat Greek yogurt (1:1)
+- Mayo → plain Greek yogurt or mashed avocado (1:1)
+- Heavy cream → evaporated skim milk, cashew cream, or pureed silken tofu
+- Cheese (when adding for flavor) → nutritional yeast (cheesy flavor, no saturated fat)
+- Bacon → turkey bacon, smoked tempeh, or crisped mushrooms
+- Ground beef → ground turkey, lean chicken, or lentils (½ meat + ½ lentils works well)
+- Frying → baking, air-frying, or pan-searing in a small amount of olive oil
+
+For diabetic-friendly / lower glycemic load:
+- White rice → cauliflower rice, brown rice, or quinoa
+- Mashed potatoes → mashed cauliflower (or 50/50 blend)
+- Regular pasta → zucchini noodles, spaghetti squash, chickpea/lentil pasta, or whole wheat pasta
+- White flour → whole wheat, oat, almond, or chickpea flour (note any texture changes)
+- White bread → whole grain or sprouted-grain bread
+- Refined sugar → mashed banana or unsweetened applesauce (in baked goods, where fruit sweetness works)
+- Refined sugar → small amounts of date paste (1 cup pitted dates + 1 cup hot water, blended) — adds fiber and slows glucose response
+- Dried fruit → fresh fruit (much less concentrated sugar)
+
+ARTIFICIAL SWEETENER POLICY:
+- The user provides a per-request preference in the user message (sweetener policy: ALLOWED or NOT ALLOWED).
+- If ALLOWED: stevia, erythritol, monk fruit, and allulose are acceptable when sweetness is structurally needed and reduction alone won't achieve the goal.
+- If NOT ALLOWED: do NOT suggest stevia, erythritol, monk fruit, allulose, sucralose, aspartame, or saccharin. Rely instead on natural sweetness reduction, fresh/mashed fruit, dates, or flavor compensation (vanilla, cinnamon, almond extract, citrus zest).
 
 If BOTH goals are selected, choose substitutions that satisfy both — e.g., olive oil + whole grain \
 swaps simultaneously address sat fat and glycemic load.
@@ -96,7 +124,7 @@ Constraints:
 - Preserve the dish's culinary identity. Don't turn lasagna into salad.
 - Substitutions must be available in typical US grocery stores.
 - For structural ingredients (e.g., gluten in bread, eggs in custard), note any texture/flavor tradeoffs.
-- Update instructions if the substitution requires different cooking technique (e.g., olive oil burns at lower temp than butter).
+- Update instructions if the substitution requires different cooking technique (e.g., olive oil burns at lower temp than butter; cauliflower rice cooks faster than white rice).
 
 For each substitution, output:
 - original_ingredient: the ingredient being replaced
@@ -273,6 +301,7 @@ def modify_recipe(
     recipe: Recipe,
     low_cholesterol: bool,
     diabetic_friendly: bool,
+    allow_artificial_sweeteners: bool = False,
 ) -> ModifiedRecipe:
     goals = []
     if low_cholesterol:
@@ -280,6 +309,12 @@ def modify_recipe(
     if diabetic_friendly:
         goals.append("DIABETIC-FRIENDLY (ADA-aligned)")
     goals_str = " AND ".join(goals)
+
+    sweetener_policy = (
+        "ALLOWED — stevia, erythritol, monk fruit, and allulose may be used when sweetness is structurally needed."
+        if allow_artificial_sweeteners
+        else "NOT ALLOWED — do not suggest stevia, erythritol, monk fruit, allulose, sucralose, aspartame, or saccharin. Use natural sweetness reduction, fresh/mashed fruit, dates, or flavor compensation (vanilla, cinnamon, almond extract, citrus zest) instead."
+    )
 
     ingredient_lines = "\n".join(
         f"- {ing.quantity} {ing.unit} {ing.name}"
@@ -290,6 +325,7 @@ def modify_recipe(
 
     user_msg = (
         f"Modify this recipe to be {goals_str}.\n\n"
+        f"Sweetener policy: {sweetener_policy}\n\n"
         f"Original recipe:\n"
         f"Title: {recipe.title}\n"
         f"Servings: {recipe.servings}\n\n"

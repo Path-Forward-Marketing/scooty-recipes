@@ -326,10 +326,22 @@ if "baseline_nutrition" in st.session_state:
     low_chol = col1.toggle("🫀 Lower cholesterol", help="AHA-aligned: reduce sat fat, dietary cholesterol")
     diabetic = col2.toggle("🩸 Diabetic-friendly", help="ADA-aligned: lower glycemic load, less added sugar")
 
+    # Artificial sweetener toggle — only relevant when diabetic-friendly is selected
+    if diabetic:
+        allow_artif = st.toggle(
+            "🌿 Allow artificial sweeteners",
+            value=False,
+            help="When OFF: the modifier uses natural sweetness sources (fruit, reduction, dates) instead of stevia/erythritol/monk fruit/etc.",
+        )
+    else:
+        allow_artif = False
+
     if (low_chol or diabetic) and st.button("Generate modified recipe", type="primary"):
         with st.spinner("Generating modified recipe..."):
             try:
-                modified = modify_recipe(client, st.session_state["recipe"], low_chol, diabetic)
+                modified = modify_recipe(
+                    client, st.session_state["recipe"], low_chol, diabetic, allow_artif
+                )
                 mod_nutrition = estimate_nutrition(client, modified.recipe)
                 mod_nutrition = compute_meal_gi_gl(client, modified.recipe, mod_nutrition)
                 st.session_state["modified"] = modified
