@@ -111,7 +111,7 @@ For each substitution, output:
 def parse_recipe_from_text(client: anthropic.Anthropic, recipe_text: str) -> Recipe:
     response = client.messages.parse(
         model=MODEL,
-        max_tokens=4096,
+        max_tokens=8192,
         system=[
             {
                 "type": "text",
@@ -124,6 +124,13 @@ def parse_recipe_from_text(client: anthropic.Anthropic, recipe_text: str) -> Rec
         ],
         output_format=Recipe,
     )
+    if response.parsed_output is None:
+        text_blocks = [b.text for b in response.content if b.type == "text"]
+        preview = ("\n".join(text_blocks))[:300] if text_blocks else "(no text in response)"
+        raise RuntimeError(
+            f"Could not parse recipe (stop_reason={response.stop_reason}). "
+            f"Response preview: {preview}"
+        )
     return response.parsed_output
 
 
@@ -160,6 +167,11 @@ def parse_recipe_from_image(
         ],
         output_format=Recipe,
     )
+    if response.parsed_output is None:
+        raise RuntimeError(
+            f"Could not parse recipe from image (stop_reason={response.stop_reason}). "
+            "Try a clearer image or paste the recipe as text."
+        )
     return response.parsed_output
 
 
@@ -181,8 +193,7 @@ def estimate_nutrition(client: anthropic.Anthropic, recipe: Recipe) -> Nutrition
 
     response = client.messages.parse(
         model=MODEL,
-        max_tokens=4096,
-        thinking={"type": "adaptive"},
+        max_tokens=8192,
         output_config={"effort": "high"},
         system=[
             {
@@ -194,6 +205,13 @@ def estimate_nutrition(client: anthropic.Anthropic, recipe: Recipe) -> Nutrition
         messages=[{"role": "user", "content": user_msg}],
         output_format=NutritionFacts,
     )
+    if response.parsed_output is None:
+        text_blocks = [b.text for b in response.content if b.type == "text"]
+        preview = ("\n".join(text_blocks))[:300] if text_blocks else "(no text in response)"
+        raise RuntimeError(
+            f"Could not parse nutrition response (stop_reason={response.stop_reason}). "
+            f"Try again or simplify the recipe. Response preview: {preview}"
+        )
     return response.parsed_output
 
 
@@ -283,8 +301,7 @@ def modify_recipe(
 
     response = client.messages.parse(
         model=MODEL,
-        max_tokens=8192,
-        thinking={"type": "adaptive"},
+        max_tokens=12288,
         output_config={"effort": "high"},
         system=[
             {
@@ -296,4 +313,11 @@ def modify_recipe(
         messages=[{"role": "user", "content": user_msg}],
         output_format=ModifiedRecipe,
     )
+    if response.parsed_output is None:
+        text_blocks = [b.text for b in response.content if b.type == "text"]
+        preview = ("\n".join(text_blocks))[:300] if text_blocks else "(no text in response)"
+        raise RuntimeError(
+            f"Could not generate modified recipe (stop_reason={response.stop_reason}). "
+            f"Try again or pick fewer modifications. Response preview: {preview}"
+        )
     return response.parsed_output
